@@ -8,6 +8,8 @@ const {
   title = 'benjft — Software Engineer',
   description = 'Personal portfolio of benjft, a software engineer.',
 } = Astro.props;
+
+import '../styles/global.scss';
 ---
 
 <!doctype html>
@@ -29,7 +31,3 @@ const {
     <slot />
   </body>
 </html>
-
-<style is:global>
-  @import '../styles/global.css';
-</style>
