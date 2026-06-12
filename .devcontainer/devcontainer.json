@@ -1,0 +1,38 @@
+{
+  "name": "benjft.github.io",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
+  "forwardPorts": [4321],
+  "portsAttributes": {
+    "4321": {
+      "label": "Astro Dev Server",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "jetbrains": {
+      "plugins": [
+        "org.jetbrains.plugins.astro",
+        "intellij.prettierJS",
+        "intellij.vitejs",
+        "org.jetbrains.plugins.node-remote-interpreter",
+        "Docker",
+        "org.jetbrains.plugins.vue",
+        "com.intellij.ml.llm",
+        "org.jetbrains.junie",
+        "dev.turingcomplete.intellijdevelopertoolsplugins"
+      ]
+    },
+    "vscode": {
+      "extensions": [
+        "astro-build.astro-vscode",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  }
+}
