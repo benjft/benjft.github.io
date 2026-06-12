@@ -1,6 +1,7 @@
 {
   "name": "benjft.github.io",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:24",
+  runArgs: ["--name", "benjft.githuib.io"],
   "forwardPorts": [4321],
   "portsAttributes": {
     "4321": {
@@ -8,7 +9,7 @@
       "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "npm install",
+  "postCreateCommand": "corepack enable && pnpm install",
   "customizations": {
     "jetbrains": {
       "plugins": [
