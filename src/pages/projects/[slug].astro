@@ -1,0 +1,54 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import { tagSlug } from '../../utils/tagSlug';
+import { Image } from 'astro:assets';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { title, tagLine, dateCreated, thumbnailImage, tags, headerImage } = project.data;
+const formattedDate = dateCreated.toLocaleDateString('en-GB', {
+  year: 'numeric',
+  month: 'long',
+});
+---
+
+<Layout title={`${title} — benjft`} description={tagLine}>
+  <Nav />
+  <main>
+    <article id="project-page">
+      <div class="container">
+        <a href="/#projects" class="back-link">← Projects</a>
+        <header>
+          <p class="date">{formattedDate}</p>
+          <h1>{title}</h1>
+          <p class="tagline">{tagLine}</p>
+          {tags.length > 0 && (
+            <div class="tag-pills">
+              {tags.map((tag) => (
+                <a href={`/tags/${tagSlug(tag)}`} class="tag-pill">{tag}</a>
+              ))}
+            </div>
+          )}
+        </header>
+        {
+          (headerImage || thumbnailImage) && <Image src={headerImage ?? thumbnailImage ?? ""} alt={title} class="thumbnail" />
+        }
+        <div class="prose">
+          <Content />
+        </div>
+      </div>
+    </article>
+  </main>
+  <footer>
+  </footer>
+</Layout>

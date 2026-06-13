@@ -1,23 +1,20 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Nav from '../components/Nav.astro';
-import Hero from '../components/Hero';
+import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
-import Projects from '../components/Projects';
+import Projects from '../components/Projects.astro';
 import Contact from '../components/Contact.astro';
 ---
 
 <Layout>
   <Nav />
   <main>
-    <Hero client:load />
+    <Hero />
     <About />
-    <Projects client:load />
+    <Projects />
     <Contact />
   </main>
   <footer>
-    <div class="container">
-      <p>Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> & React &mdash; benjft</p>
-    </div>
   </footer>
 </Layout>

@@ -1,0 +1,81 @@
+---
+title: ScanSolver
+dateCreated: 2021-08-04
+tagLine: Calculates optimal satellite orbits to achieve 100% surface coverage in KSP's SCANSat mod, using numerical methods to solve orbital geometry constraints.
+thumbnailImage: /projects/scansolver/scanSolver_thumbnail.jpg
+headerImage: /projects/scansolver/scanSolver.webp
+tags: [Python, Simulation]
+---
+
+## Overview
+
+ScanSolver is a tool for Kerbal Space Program that calculates optimal satellite orbits for the SCANSat mod, helping users achieve 100% planetary surface coverage as quickly as possible. SCANSat adds ground-scanning modules for mapping resources, terrain, and anomalies — but the way their fields of view vary with planet size and altitude make orbit selection non-trivial. The tool accepts scanner parameters and outputs valid orbital parameters: semi-major axis, eccentricity range, and the number of orbits to completion.
+
+It was written in **Python** as a CLI tool, with **KerboScript** for in-game kOS scripting. The solver evolved through three versions, each meaningfully improving on the last.
+
+## Background
+
+Each SCANSat scanning module has four key parameters:
+
+- **Field of View (FoV)** — the ground track width in degrees at the equator
+- **Minimum altitude** — below which the scanner doesn't work
+- **Best altitude** — the threshold at which FoV reaches its maximum
+- **Maximum altitude** — above which the scanner doesn't work
+
+The effective FoV depends on both altitude and the size of the body being scanned:
+
+- Below best altitude: $F(A) = F_0 \cdot \frac{A}{A_\text{best}}$
+- At or above best altitude: $F(A) = F_0$
+- Smaller bodies scale down: $F(R) = F_0 \cdot \sqrt{\frac{R_\text{Kerbin}}{R}}$
+- FoV is capped at 20°
+
+Combined:
+
+$$F(A,R) = \min\!\left(F_0 \cdot \frac{\min(A,A_\text{best})}{A_\text{best}} \cdot \sqrt{\frac{R_\text{Kerbin}}{\min(R,R_\text{Kerbin})}},\ 20\right)$$
+
+Note that FoV is measured in degrees at the equator — at higher latitudes the same track appears wider on a square map projection, which becomes important in later versions.
+
+## Version 1 — Circular Polar Orbits
+
+The first version considers only circular orbits at exactly 90° inclination.
+
+The approach uses a surface resonance ratio — the satellite completes $C$ orbits per $N$ sidereal days of the body's rotation, sweeping $N$ ground tracks across the surface. For the fraction $C/N$ to be irreducible (ensuring all $N$ tracks are distinct), $C$ and $N$ must be co-prime.
+
+**Method:**
+
+1. Compute the minimum number of ground tracks needed: $N = \lceil 180 / F(R) \rceil$
+2. For each co-prime $C$ of $N$, compute the required orbital period: $T_\text{orbit} = T_\text{day} \cdot C/N$
+3. Check that the resulting altitude is above the minimum — if so, the orbit is valid
+4. The smallest valid $C$ gives the fewest sidereal days to complete the scan
+
+## Version 2 — Elliptical Orbits
+
+Version 2 extends the solver to elliptical orbits. A satellite on an elliptical orbit moves faster near periapsis (poles and night side) and slower near apoapsis (equator and day side), which is where scanning matters most. This means a faster orbit can still achieve adequate FoV at the equator.
+
+The minimum eccentricity is found by solving for when the equatorial FoV exactly equals the required track spacing. This yields a cubic in eccentricity $e$:
+
+$$0 = 4(a \cdot A)e^3 + R^2 e^2 + 2A(R - 2a)e + A^2$$
+
+where $A$ is the minimum required equatorial altitude, $R$ is the body radius, and $a$ is the semi-major axis. One real root means no valid orbit; otherwise the second-largest root is the minimum $e$ and the largest is the maximum.
+
+Additional constraints bound eccentricity further:
+
+- **Polar minimum altitude:** $e_\text{poles} = \sqrt{1 - \frac{R + A_\text{min}}{a}}$
+- **Safe periapsis:** $e_\text{peri} = 1 - \frac{R + A_\text{safe}}{a}$
+- **Maximum apoapsis:** $e_\text{apo} = \frac{R + A_\text{max}}{a} - 1$
+
+The algorithm increments $C$ looking for a valid eccentricity window, then increments $N$ and checks whether $C$ can be reduced again — stopping when $N/C$ drops below the minimum altitude constraint everywhere.
+
+## Version 3 — Planetary Rotation
+
+Version 3 accounts for the planet rotating beneath the satellite during each orbit. This "smearing" effect widens the effective scan track — and its magnitude depends on the orbital period relative to the body's rotation rate.
+
+The effective FoV at a given latitude (where $x = \cos(\text{latitude})$) becomes:
+
+$$F = F_0 \cdot \frac{\dfrac{a(1-e^2)}{1-ex} - R}{A_\text{best}}$$
+
+The smearing scaling factor is:
+
+$$S = \frac{1}{x} + \frac{C}{N} \cdot \frac{(1-e^2)^{3/2}}{(1-ex)^2}$$
+
+The inequality to satisfy at all latitudes is $S \cdot F \geq \frac{180}{N}$. This cannot be solved algebraically, so a **hybrid bisection and Newton's method** numerical solver is used to find the eccentricity bounds. The tool also outputs a *range* of valid solutions rather than a single answer, giving more flexibility when planning a mission.

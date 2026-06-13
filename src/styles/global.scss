@@ -60,6 +60,16 @@ section {
   padding: var(--section-padding);
 }
 
+.btn-primary,
+.btn-secondary,
+.link-btn {
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
 h1,
 h2,
 h3 {
@@ -146,7 +156,7 @@ nav {
     max-width: none;
   }
 
-  h1 {
+  h1#name-tag {
     font-size: clamp(2.5rem, 8vw, 5rem);
     color: var(--color-text);
     margin-bottom: 0.5rem;
@@ -172,12 +182,7 @@ nav {
 
   .btn-primary,
   .btn-secondary {
-    padding: 0.75rem 1.75rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.95rem;
     transition: opacity 0.2s, transform 0.2s;
-    text-decoration: none;
 
     &:hover {
       opacity: 0.85;
@@ -198,10 +203,14 @@ nav {
   }
 }
 
+// About + Contact (shared) ----------------------------------------------------
+#about,
+#contact {
+  background: var(--color-surface);
+}
+
 // About (src/components/About.astro) ------------------------------------------
 #about {
-  background: var(--color-surface);
-
   .content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -244,10 +253,33 @@ nav {
   }
 }
 
-// Projects (src/components/Projects.tsx) --------------------------------------
+// Tag pills (used in card grids and project detail page) ----------------------
+.tag-pill {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-accent-light);
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 9999px;
+  padding: 0.2em 0.65em;
+  white-space: nowrap;
+  text-decoration: none;
+  position: relative;
+  z-index: 1;
+}
+
+a.tag-pill:hover {
+  background: rgba(124, 58, 237, 0.2);
+  border-color: var(--color-accent-light);
+}
+
+// Projects (src/components/Projects.astro) ------------------------------------
 #projects {
   background: var(--color-bg);
+}
 
+#projects,
+#tag-page {
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -259,16 +291,49 @@ nav {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 0.75rem;
-    padding: 1.5rem;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     transition: border-color 0.2s, transform 0.2s;
+    position: relative;
 
-    &:hover {
+    &:has(.card-link:hover),
+    &:has(.card-link:focus-visible) {
       border-color: var(--color-accent);
       transform: translateY(-3px);
     }
+  }
+
+  .card-link {
+    color: var(--color-text);
+    text-decoration: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+    }
+  }
+
+  .card-thumbnail {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-header,
+  .description,
+  .tag-pills,
+  .project-date {
+    padding: 0 1.5rem;
+  }
+
+  .tag-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
 
   .card-header {
@@ -276,6 +341,18 @@ nav {
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
+    padding-top: 1.5rem;
+
+    svg {
+      color: var(--color-text-muted);
+      flex-shrink: 0;
+      transition: color 0.2s;
+    }
+  }
+
+  .card:has(.card-link:hover) .card-header svg,
+  .card:has(.card-link:focus-visible) .card-header svg {
+    color: var(--color-accent-light);
   }
 
   h3 {
@@ -283,47 +360,148 @@ nav {
     color: var(--color-text);
   }
 
-  .links {
-    display: flex;
-    gap: 0.75rem;
-    flex-shrink: 0;
-
-    a {
-      color: var(--color-text-muted);
-      display: flex;
-      transition: color 0.2s;
-
-      &:hover {
-        color: var(--color-text);
-      }
-    }
-  }
-
   .description {
     font-size: 0.9rem;
     flex: 1;
   }
 
-  .tags {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  .project-date {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-accent-light);
+    background: rgba(124, 58, 237, 0.1);
+    padding: 0.2rem 1.5rem 1.5rem;
+  }
+}
 
-    li {
+// Project detail page (src/pages/projects/[slug].astro) -----------------------
+#project-page {
+  padding-top: 8rem;
+  padding-bottom: 6rem;
+
+  .back-link {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--color-text);
+      text-decoration: none;
+    }
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+
+    .date {
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       color: var(--color-accent-light);
+      max-width: none;
+      margin-bottom: 0.75rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 0.75rem;
+    }
+
+    .tagline {
+      font-size: 1.15rem;
+      color: var(--color-text-muted);
+      max-width: 65ch;
+    }
+
+    .tag-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 1.25rem;
+    }
+  }
+
+  .thumbnail {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-border);
+    margin-bottom: 2.5rem;
+  }
+
+  .prose {
+    max-width: 72ch;
+
+    h2,
+    h3 {
+      color: var(--color-text);
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    h2::after {
+      display: none;
+    }
+
+    p {
+      color: var(--color-text-muted);
+      max-width: none;
+      margin-bottom: 1rem;
+    }
+
+    ul,
+    ol {
+      color: var(--color-text-muted);
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+
+      li {
+        margin-bottom: 0.25rem;
+      }
+    }
+
+    pre {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 0.5rem;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+
+      code {
+        background: none;
+        padding: 0;
+        font-size: 0.875rem;
+      }
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.875em;
       background: rgba(124, 58, 237, 0.1);
-      padding: 0.2rem 0.6rem;
+      color: var(--color-accent-light);
+      padding: 0.15em 0.35em;
       border-radius: 0.25rem;
+    }
+
+    blockquote {
+      border-left: 3px solid var(--color-accent);
+      padding-left: 1rem;
+      margin-bottom: 1rem;
+      color: var(--color-text-muted);
+    }
+
+    a {
+      color: var(--color-accent-light);
     }
   }
 }
 
 // Contact (src/components/Contact.astro) --------------------------------------
 #contact {
-  background: var(--color-surface);
   text-align: center;
 
   .container {
@@ -346,19 +524,57 @@ nav {
   }
 
   .link-btn {
-    padding: 0.75rem 1.75rem;
     border: 1px solid var(--color-border);
-    border-radius: 0.5rem;
     color: var(--color-text);
-    font-weight: 500;
-    font-size: 0.95rem;
     transition: border-color 0.2s, color 0.2s;
-    text-decoration: none;
 
     &:hover {
       border-color: var(--color-accent-light);
       color: var(--color-accent-light);
       text-decoration: none;
+    }
+  }
+}
+
+// Tag pages (src/pages/tags/[tag].astro) --------------------------------------
+#tag-page {
+  padding-top: 8rem;
+  padding-bottom: 6rem;
+
+  .back-link {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--color-text);
+      text-decoration: none;
+    }
+  }
+
+  header {
+    margin-bottom: 3rem;
+
+    .tag-label {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--color-accent-light);
+      max-width: none;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .count {
+      color: var(--color-text-muted);
+      font-size: 1rem;
+      max-width: none;
     }
   }
 }

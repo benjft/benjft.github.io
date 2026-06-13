@@ -1,0 +1,105 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import { tagSlug } from '../../utils/tagSlug';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+
+  const tagMap = new Map<string, string>();
+  for (const project of projects) {
+    for (const tag of project.data.tags) {
+      tagMap.set(tagSlug(tag), tag);
+    }
+  }
+
+  return [...tagMap.entries()].map(([slug, displayTag]) => ({
+    params: { tag: slug },
+    props: {
+      displayTag,
+      projects: projects
+        .filter((p) => p.data.tags.some((t) => tagSlug(t) === slug))
+        .sort((a, b) => b.data.dateCreated.getTime() - a.data.dateCreated.getTime()),
+    },
+  }));
+}
+
+const { displayTag, projects } = Astro.props;
+---
+
+<Layout
+  title={`${displayTag} — benjft`}
+  description={`Projects tagged ${displayTag} by benjft`}
+>
+  <Nav />
+  <main>
+    <section id="tag-page">
+      <div class="container">
+        <a href="/#projects" class="back-link">← All projects</a>
+        <header>
+          <p class="tag-label">Tag</p>
+          <h1>{displayTag}</h1>
+          <p class="count">{projects.length} project{projects.length !== 1 ? 's' : ''}</p>
+        </header>
+        <div class="grid">
+          {
+            projects.map((project) => (
+              <div class="card">
+                {project.data.thumbnailImage && (
+                  <img
+                    src={project.data.thumbnailImage}
+                    alt={project.data.title}
+                    class="card-thumbnail"
+                  />
+                )}
+                <div class="card-header">
+                  <h3>
+                    <a href={`/projects/${project.id}`} class="card-link">
+                      {project.data.title}
+                    </a>
+                  </h3>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <p class="description">{project.data.tagLine}</p>
+                {project.data.tags.length > 0 && (
+                  <div class="tag-pills">
+                    {project.data.tags.map((tag) => (
+                      <a href={`/tags/${tagSlug(tag)}`} class="tag-pill">{tag}</a>
+                    ))}
+                  </div>
+                )}
+                <p class="project-date">
+                  {project.data.dateCreated.toLocaleDateString('en-GB', {
+                    year: 'numeric',
+                    month: 'long',
+                  })}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="container">
+      <p>
+        Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> & React
+        &mdash; benjft
+      </p>
+    </div>
+  </footer>
+</Layout>
