@@ -1,33 +1,37 @@
 ---
 title: ProcVis
 dateCreated: 2022-03-18
-tagLine: Interactive browser-based simulator that visualises a custom 8-bit Von Neumann processor executing instructions step-by-step, with animated data and command buses.
-thumbnailImage: https://www.benjft.uk/assets/posts/2024-06-07-project-summary-procvis/proc-vis.png
+tagLine: Interactive browser-based simulator that visualises a custom 8-bit Von Neumann processor as it executes programs, with animated data and command buses.
+thumbnailImage: /projects/procvis/proc-vis.png
 tags: [TypeScript, Simulation, Computer Architecture]
 ---
 
-## Overview
+ProcVis (Processor Visualiser) was my final-year university project — a browser-based tool for making processor internals tangible. Rather than explaining the fetch-execute cycle in the abstract, it lets you write a program, step through each micro-operation, and watch the processor's components light up in real time as data flows between them. It was designed primarily for students encountering computer architecture for the first time.
 
-ProcVis is a client-side web application that simulates and visualises how a processor executes instructions. It lets you step through program execution and watch internal state change in real time, making processor internals tangible for learners. A live demo is hosted at [benjft.uk/ProcVis](https://benjft.uk/ProcVis/).
+<!--more-->
 
-## Technical Details
+## How it Works
 
-The simulated processor is a deliberately minimal custom 8-bit Von Neumann architecture:
+The processor is a custom 8-bit Von Neumann design, chosen to be simple enough to fit on screen without being overwhelming. It has the components you'd expect: two general-purpose registers (A and B), an ALU, a Control Unit, a program counter, an instruction register, an address register, and 256 bytes of RAM.
 
-- **2 general-purpose registers**, ALU, control unit, instruction register, program counter, address register, and 256 bytes of RAM
-- **12 instructions** — 6 arithmetic/logical, 2 memory, 4 jump — with immediate and register addressing modes
-- **Animated bus visualisation** — data buses light up in blue and command buses in red as execution proceeds
-- Registers display values in decimal, hex, or binary on click
-- Users can step through individual micro-operations, step full instructions, or run continuously
-- The control unit displays a live description of the current operation
+As the processor runs, its internal buses animate to show exactly what's happening at each step. The **blue data buses** carry values between RAM and registers — the main 8-lane bus lights up whenever data is being read or written, and smaller buses carry ALU flags back to the Control Unit. The **red command buses** carry control signals (Set, Enable, Increment, and ALU opcode), making it visually clear which components are being told to act and why.
 
-Implementation:
+The Control Unit displays a plain-language description of the current micro-operation as it happens, walking through the fetch-execute cycle and explaining each stage in turn.
 
-- Built entirely in **TypeScript** with no frameworks — plain browser APIs
-- Split across two modules: `proc_sim.ts` (simulation logic) and `sim_ui.ts` (UI layer)
-- Styled with **Sass**
-- Fully client-side — no backend, no build server
+## Instruction Set
 
-## What I Learned
+Rather than adopting an existing 8-bit ISA, I designed a custom instruction set with comprehensibility as the primary goal. It includes 6 arithmetic and logical operations, 2 memory operations, and 4 jump operations, with both immediate and register addressing modes. Immediate instructions become 16-bit by appending the value as a second byte.
 
-Implementing a processor simulation from scratch forces you to reason precisely about fetch-decode-execute cycles, register state, and memory addressing. Keeping the simulation logic and UI cleanly separated made it much easier to reason about and test the core behaviour independently. The project was my final-year university dissertation, earning a first-class result.
+## Using It
+
+You write a program by typing instructions directly into the RAM cells. The processor can then be stepped one micro-operation or one full instruction at a time, or left to run continuously. Active buses illuminate with the values they're carrying, and each component changes colour to indicate whether it's being read from or written to.
+
+Clicking a register cycles its display between decimal, hex, and binary — useful when you want to see exactly what's stored. RAM cells work the same way, with the added option of showing the parsed instruction if the cell was written as assembly.
+
+You can [try it in your browser here](https://www.benjft.uk/ProcVis).
+
+## Outcomes
+
+ProcVis was the centrepiece of my final-year project and helped me complete my degree with a 1st. User feedback was broadly positive, though in practice it needed more guided coaching than I'd anticipated — likely a combination of time pressure during testing and questions that didn't naturally prompt exploration. It's something I'd improve in a future iteration.
+
+Overall I'm pleased with how the project turned out and hope to develop it further.

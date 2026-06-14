@@ -40,10 +40,10 @@ const formattedDate = dateCreated.toLocaleDateString('en-GB', {
             </div>
           )}
         </header>
-        {
-          (headerImage || thumbnailImage) && <Image src={headerImage ?? thumbnailImage ?? ""} alt={title} class="thumbnail" />
-        }
         <div class="prose">
+        {
+          (headerImage || thumbnailImage) && <img src={headerImage ?? thumbnailImage ?? ""} alt={title} class="thumbnail" />
+        }
           <Content />
         </div>
       </div>

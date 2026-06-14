@@ -1,62 +1,25 @@
 ---
 import { getCollection } from 'astro:content';
-import { tagSlug } from '../utils/tagSlug';
+import ProjectsCarousel from './ProjectsCarousel';
 
 const projects = await getCollection('projects');
 projects.sort((a, b) => b.data.dateCreated.getTime() - a.data.dateCreated.getTime());
+
+const projectData = projects
+  .filter((p) => p.data.public !== false)
+  .map((p) => ({
+    id: p.id,
+    title: p.data.title,
+    tagLine: p.data.tagLine,
+    tags: p.data.tags,
+    thumbnailImage: p.data.thumbnailImage ?? null,
+    dateCreated: p.data.dateCreated.toISOString(),
+  }));
 ---
 
 <section id="projects">
   <div class="container">
     <h2>Projects</h2>
-    <div class="grid">
-      {
-        projects.filter((p) => p.data.public !== false).map((project) => (
-          <div class="card">
-            {project.data.thumbnailImage && (
-              <img
-                src={project.data.thumbnailImage}
-                alt={project.data.title}
-                class="card-thumbnail"
-              />
-            )}
-            <div class="card-header">
-              <h3>
-                <a href={`/projects/${project.id}`} class="card-link">
-                  {project.data.title}
-                </a>
-              </h3>
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </div>
-            <p class="description">{project.data.tagLine}</p>
-            {project.data.tags.length > 0 && (
-              <div class="tag-pills">
-                {project.data.tags.map((tag) => (
-                  <a href={`/tags/${tagSlug(tag)}`} class="tag-pill">{tag}</a>
-                ))}
-              </div>
-            )}
-            <p class="project-date">
-              {project.data.dateCreated.toLocaleDateString('en-GB', {
-                year: 'numeric',
-                month: 'long',
-              })}
-            </p>
-          </div>
-        ))
-      }
-    </div>
+    <ProjectsCarousel client:only="react" projects={projectData} />
   </div>
 </section>

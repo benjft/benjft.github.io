@@ -276,6 +276,87 @@ a.tag-pill:hover {
 // Projects (src/components/Projects.astro) ------------------------------------
 #projects {
   background: var(--color-bg);
+
+  // Embla viewport — clips the sliding track
+  .carousel-viewport {
+    overflow: hidden;
+    margin-top: 2rem;
+  }
+
+  // Embla track — flex row of slides
+  // Negative margin offsets the slide padding so the first slide is flush left
+  .carousel-track {
+    display: flex;
+    touch-action: pan-y;
+    margin-left: -1.5rem;
+  }
+
+  // Each slide is a full page; the inner .grid handles the card columns
+  // padding-left creates the visible gap between pages during transition
+  .carousel-slide {
+    flex: 0 0 100%;
+    min-width: 0;
+    padding-left: 1.5rem;
+  }
+
+  .carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .carousel-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    flex-shrink: 0;
+
+    &:hover:not(:disabled) {
+      border-color: var(--color-accent-light);
+      color: var(--color-accent-light);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+  }
+
+  .page-dots {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .page-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-border);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    padding: 0;
+
+    &.active {
+      background: var(--color-accent-light);
+      transform: scale(1.4);
+    }
+
+    &:hover:not(.active) {
+      background: var(--color-text-muted);
+    }
+  }
 }
 
 #projects,
@@ -284,7 +365,6 @@ a.tag-pill:hover {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
-    margin-top: 2rem;
   }
 
   .card {
@@ -498,6 +578,31 @@ a.tag-pill:hover {
       color: var(--color-accent-light);
     }
   }
+
+  .formula-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    img {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      border-radius: 0.75rem;
+      border: 1px solid var(--color-border);
+    }
+
+    figcaption {
+      font-size: small;
+      color: var(--color-accent-light) !important;
+    }
+  }
 }
 
 // Contact (src/components/Contact.astro) --------------------------------------
@@ -540,6 +645,10 @@ a.tag-pill:hover {
 #tag-page {
   padding-top: 8rem;
   padding-bottom: 6rem;
+
+  .grid {
+    margin-top: 2rem;
+  }
 
   .back-link {
     font-size: 0.9rem;
