@@ -505,15 +505,15 @@ a.tag-pill:hover {
 
   .thumbnail {
     width: 100%;
-    max-height: 420px;
-    object-fit: cover;
+    //max-height: 420px;
+    //object-fit: cover;
     border-radius: 0.75rem;
     border: 1px solid var(--color-border);
     margin-bottom: 2.5rem;
   }
 
   .prose {
-    max-width: 72ch;
+    //max-width: 72ch;
 
     h2,
     h3 {
